@@ -1,11 +1,7 @@
 from PIL import Image
-from numpy.lib.type_check import imag
-from numpy.testing._private.utils import assert_warns
 from src import detect_faces
 from aiohttp import web
-from datetime import datetime
 from io import BytesIO
-import numpy as np
 import base64
 import socketio
 
