@@ -1,16 +1,12 @@
 from PIL import Image
+from flask import Flask, request, jsonify
 from src import detect_faces
-from aiohttp import web
 from io import BytesIO
 import base64
-import socketio
+import json
 
 
-sio = socketio.AsyncServer(cor_allowed_origins='*')
-print("____________AsyncServer Runing____________: {}".format(sio))
-app = web.Application()
-print("____________Application Runing____________: {}".format(app))
-sio.attach(app)
+app = Flask(__name__)
 
 
 def convert_img2pilimg(img):
@@ -21,25 +17,18 @@ def convert_img2pilimg(img):
     return img
 
 
-@sio.event
-async def connect(sid, environ):
-    print('connect ', sid)
-    await sio.emit('connected', {'message': 'connect success'}, room=sid)
+@app.route('/api/detect-face', methods=['POST'])
+def detect_face():
+    json_data = request.get_json()
+    jpg_as_text = json_data.get('jpg_as_text', '')
+    img = convert_img2pilimg(jpg_as_text)
+    bounding_boxes, landmarks = detect_faces(img)
+    data = {
+        'bounding_boxes': bounding_boxes.tolist() if not type(bounding_boxes) is list else [],
+        'landmarks': landmarks.tolist() if not type(landmarks) is list else []
+    }
+    return jsonify(data)
 
-
-@sio.on('detection-channel')
-async def detect_face(sid, img):
-    try:
-        img = convert_img2pilimg(img)
-        bounding_boxes, landmarks = detect_faces(img)
-        data = {
-            'bounding_boxes': bounding_boxes.tolist(),
-            'landmarks': landmarks.tolist()
-        }
-        await sio.emit('detection-channel', data=data, room=sid)
-
-    except:
-        print("Not yet detected face!!!!!!")
 
 if __name__ == '__main__':
-    web.run_app(app)
+    app.run(host="0.0.0.0", port=3000)
