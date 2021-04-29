@@ -1,3 +1,6 @@
+from src import show_bboxes
+from PIL import Image
+import numpy as np
 import requests
 import json
 import base64
@@ -6,19 +9,10 @@ import cv2
 cap = cv2.VideoCapture(0)
 
 retval, image = cap.read()
-count = 0
 
 while True:
     retval, image = cap.read()
     # Display the resulting frame
-    try:
-        cv2.imshow('preview',image)
-        # Press Q on keyboard to  exit
-        if cv2.waitKey(25) & 0xFF == ord('q'):
-            break
-    except:
-        continue
-    # if count == 20:
     count = 0
     retval, buffer = cv2.imencode('.jpg', image)
     jpg_as_text = base64.b64encode(buffer).decode('utf-8')
@@ -32,5 +26,15 @@ while True:
     if response.status_code != 200:
         continue
     data = json.loads(response.text)
-    print(data)
-    # count += 1
+    bounding_boxes = data.get('bounding_boxes', [[]])
+    landmarks = data.get('landmarks', [[]])
+    PIL_image = Image.fromarray(image.astype('uint8'), 'RGB')
+    image = show_bboxes(PIL_image, bounding_boxes, landmarks)
+    image = np.array(image)
+    try:
+        cv2.imshow('preview',image)
+        # Press Q on keyboard to  exit
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            break
+    except:
+        continue
