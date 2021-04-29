@@ -1,7 +1,6 @@
 numpy
 Pillow
 torch
-python-socketio
-aiohttp
 opencv-python
 requests
+flask

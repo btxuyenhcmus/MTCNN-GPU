@@ -1,29 +1,36 @@
+from src import show_bboxes
+from PIL import Image
+import numpy as np
+import requests
+import json
 import base64
-import socketio
 import cv2
 
-sio = socketio.Client()
-
-# Connect to server
-sio.connect('http://localhost:8080')
 cap = cv2.VideoCapture(0)
 
-
-@sio.on('detection-channel')
-def message(data):
-    try:
-        bounding_boxes, landmarks = data.get('bounding_boxes'), data.get('landmarks')
-        print(bounding_boxes)
-        print(landmarks)
-    except:
-        print("Cannot receive information from server!!")
-
 retval, image = cap.read()
-count = 0
 
 while True:
     retval, image = cap.read()
     # Display the resulting frame
+    count = 0
+    retval, buffer = cv2.imencode('.jpg', image)
+    jpg_as_text = base64.b64encode(buffer).decode('utf-8')
+    headers = {
+        'Content-Type': r"application/json"
+    }
+    data = {
+        'jpg_as_text': jpg_as_text
+    }
+    response = requests.post(url='http://localhost:3000/api/detect-face', headers=headers, data=json.dumps(data))
+    if response.status_code != 200:
+        continue
+    data = json.loads(response.text)
+    bounding_boxes = data.get('bounding_boxes', [[]])
+    landmarks = data.get('landmarks', [[]])
+    PIL_image = Image.fromarray(image.astype('uint8'), 'RGB')
+    image = show_bboxes(PIL_image, bounding_boxes, landmarks)
+    image = np.array(image)
     try:
         cv2.imshow('preview',image)
         # Press Q on keyboard to  exit
@@ -31,9 +38,3 @@ while True:
             break
     except:
         continue
-    if count == 20:
-        count = 0
-        retval, buffer = cv2.imencode('.jpg', image)
-        jpg_as_text = base64.b64encode(buffer).decode('utf-8')
-        sio.emit('detection-channel', jpg_as_text)
-    count += 1
