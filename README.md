@@ -10,7 +10,7 @@
 ---
 ## Bảng kế hoạch
 | Thời gian | Công việc | Thực hiện |
-| -------- | ---------- |
+| -------- | ---------- | ---- | 
 | 18-04-2021 đến 27-04-2021 | Tìm hiểu MTCNN | Từng thanh viên |
 | 28-04-2021 | Họp team và thống nhất báo cáo MTCNN | Team |
 | 29-04-2021 đến 15-05-2021 | Cài đặt tuần tự | Từng thành viên |
