@@ -1,0 +1,7 @@
+﻿lần 2
+bỏ train
+thông tin data training
+công dụng của PRO net
+lần 3
+số lượng bounding box có bị giới hạn hay linh hoạt? tại sao?
+test nhiều trường hợp, nhiều/ít mặt ảnh nhỏ/lớn, thiếu/đủ sáng
