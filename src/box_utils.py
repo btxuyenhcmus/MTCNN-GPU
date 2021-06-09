@@ -1,6 +1,6 @@
 import numpy as np
 from PIL import Image
-
+import numba
 
 def nms(boxes, overlap_threshold=0.5, mode='union'):
     """Non-maximum suppression.

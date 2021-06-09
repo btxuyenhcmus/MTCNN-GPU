@@ -72,7 +72,7 @@ class PNet(nn.Module):
 
 
 class RNet(nn.Module):
-
+    
     def __init__(self):
 
         super().__init__()

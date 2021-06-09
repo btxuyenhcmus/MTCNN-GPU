@@ -6,6 +6,7 @@ import numpy as np
 from .box_utils import nms, _preprocess
 
 
+
 def run_first_stage(image, net, scale, threshold):
     """Run P-Net, generate bounding boxes, and do NMS.
 
