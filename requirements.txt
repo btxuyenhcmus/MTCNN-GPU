@@ -1,6 +1,11 @@
 numpy
 Pillow
-torch
 opencv-python
 requests
 flask
+future
+pyyaml
+setuptools
+six
+typing_extensions
+dataclasses; python_version<"3.7"
