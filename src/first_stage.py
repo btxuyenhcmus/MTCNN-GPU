@@ -4,8 +4,9 @@ import math
 from PIL import Image
 import numpy as np
 from .box_utils import nms, _preprocess
+from numba import jit
 
-
+@jit
 def run_first_stage(image, net, scale, threshold):
     """Run P-Net, generate bounding boxes, and do NMS.
 
@@ -43,7 +44,7 @@ def run_first_stage(image, net, scale, threshold):
     keep = nms(boxes[:, 0:5], overlap_threshold=0.5)
     return boxes[keep]
 
-
+@jit
 def _generate_bboxes(probs, offsets, scale, threshold):
     """Generate bounding boxes at places
     where there is probably a face.

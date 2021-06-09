@@ -1,7 +1,8 @@
 import numpy as np
 from PIL import Image
+from numba import jit
 
-
+@jit
 def nms(boxes, overlap_threshold=0.5, mode='union'):
     """Non-maximum suppression.
 
@@ -67,7 +68,7 @@ def nms(boxes, overlap_threshold=0.5, mode='union'):
 
     return pick
 
-
+@jit
 def convert_to_square(bboxes):
     """Convert bounding boxes to a square form.
 
@@ -90,7 +91,7 @@ def convert_to_square(bboxes):
     square_bboxes[:, 3] = square_bboxes[:, 1] + max_side - 1.0
     return square_bboxes
 
-
+@jit
 def calibrate_box(bboxes, offsets):
     """Transform bounding boxes to be more like true bounding boxes.
     'offsets' is one of the outputs of the nets.
@@ -222,7 +223,7 @@ def correct_bboxes(bboxes, width, height):
 
     return return_list
 
-
+@jit
 def _preprocess(img):
     """Preprocessing step before feeding the network.
 
