@@ -29,4 +29,4 @@ def Convolution2D(input,weight,bias,strike,padding,dilation,groups):
                         for ky in range(Kh):
                             for kx in range(Kw):
                                 res[n,to,y,x]+=n_weight[to,ti,ky,kx]*np_padding[n,ti,(y*strike)+ky,(x*strike)+kx]
-                    res[n,]
+                    res[n,to,y,x]
