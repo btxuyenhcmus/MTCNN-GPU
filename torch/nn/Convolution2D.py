@@ -1,6 +1,8 @@
 import torch
 import numpy
+from numba import jit
 
+@jit
 def Convolution2D(input,weight,bias,strike,padding,dilation,groups):
     assert(dilation == 1)
     assert(groups == 1)
