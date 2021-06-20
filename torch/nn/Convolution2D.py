@@ -1,4 +1,5 @@
 import torch
 import numpy
 
-def 
+def Convolution2D(input,weight,bias,strike,padding,dilation,groups):
+    
