@@ -618,9 +618,15 @@ class Tensor(torch._C._TensorBase):
         if has_torch_function_unary(self):
             return handle_torch_function(Tensor.__array__, (self,), self, dtype=dtype)
         if dtype is None:
-            return self.numpy()
+            try:
+                return self.numpy()
+            except Exception as e:
+                return self.detach().numpy()
         else:
-            return self.numpy().astype(dtype, copy=False)
+            try:
+                return self.numpy().astype(dtype, copy=False)
+            except Exception as e:
+                return self.detach().numpy().astype(dtype, copy=False)
 
     # Wrap Numpy array again in a suitable tensor when done, to support e.g.
     # `numpy.sin(tensor) -> tensor` or `numpy.greater(tensor, 0) -> ByteTensor`

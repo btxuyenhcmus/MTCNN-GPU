@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from torch.autograd import Variable
-from .get_nets import PNet, RNet, ONet
+from .get_nets import ONet_Type1, PNet, PNet_Type1, RNet, ONet, RNet_Type1
 from .box_utils import nms, calibrate_box, get_image_boxes, convert_to_square
 from .first_stage import run_first_stage
 
@@ -123,7 +123,7 @@ def detect_faces(image, min_face_size=20.0,
 
     return bounding_boxes, landmarks
 
-def detect_faces_with_jit(image, min_face_size=20.0,
+def detect_faces_type1(image, min_face_size=20.0,
                  thresholds=[0.6, 0.7, 0.8],
                  nms_thresholds=[0.7, 0.7, 0.7]):
     """
@@ -139,9 +139,9 @@ def detect_faces_with_jit(image, min_face_size=20.0,
     """
 
     # LOAD MODELS
-    pnet = torch.jit.script(PNet())
-    rnet = torch.jit.script(RNet())
-    onet = torch.jit.script(ONet())
+    pnet = PNet_Type1()
+    rnet = RNet_Type1()
+    onet = ONet_Type1()
     onet.eval()
 
     # BUILD AN IMAGE PYRAMID
