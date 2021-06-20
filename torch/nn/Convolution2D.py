@@ -20,3 +20,13 @@ def Convolution2D(input,weight,bias,strike,padding,dilation,groups):
     H_out = int(np.floor((H + 2*padding - dilation*(Kh-1) - 1) / stride + 1))
 
     res = np.zeros((N, C, H_out, W_out), dtype=np.float32)
+
+    for i in range(N):
+        for to in range(C):
+            for y in range(H_out):
+                for x in range(W_out):
+                    for ti in range(Kc):
+                        for ky in range(Kh):
+                            for kx in range(Kw):
+                                res[n,to,y,x]+=n_weight[to,ti,ky,kx]*np_padding[n,ti,(y*strike)+ky,(x*strike)+kx]
+                    res[n,]
