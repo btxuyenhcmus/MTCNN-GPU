@@ -17,6 +17,13 @@ def conv_forward_type1(input, weight, bias, stride, padding, dilation, groups):
     _conv_forward_type1(np_input, np_input_pad,np_weight, np_bias, stride, padding, dilation, groups, result)
     return torch.from_numpy(result).type_as(input)
 
+def prelu_type1(input, weight):
+	np_input = input.data.cpu().numpy()
+	np_weight = weight.data.cpu().numpy()
+	result = np.zeros(np_input.shape, dtype=np.float32)
+	_prelu_type1(np_input, np_weight, result)
+	return torch.from_numpy(result).type_as(input)
+
 @jit
 def _conv_forward_type1(input, input_pad, weight, bias, stride, padding, dilation, groups, result):
     N, Kc, H, W = input.shape
@@ -32,3 +39,17 @@ def _conv_forward_type1(input, input_pad, weight, bias, stride, padding, dilatio
                 for kx in range(Kw):
                   result[n,to,y,x] += weight[to,ti,ky,kx] * input_pad[n,ti,(y*stride[1])+ky,(x*stride[0])+kx]  
             result[n,to,y,x] += bias[to]
+
+@jit
+def _prelu_type1(input, weight, result):
+	if len(input.shape) == 2:
+		result = input
+	N, Kc, H, W = input.shape
+	for n in range(N):
+		for to in range(Kc):
+			for y in range(H):
+				for x in range(W):
+					if input[n, to, y, x] >= 0:
+						result[n, to, y, x] = input[n, to, y, x]
+					else:
+						result[n, to, y, x] = input[n, to, y, x] * weight[to]
