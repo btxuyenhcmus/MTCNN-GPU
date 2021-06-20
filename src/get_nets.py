@@ -47,7 +47,7 @@ class PNet(nn.Module):
 
             ('conv3', nn.Conv2d(16, 32, 3, 1)),
             ('prelu3', nn.PReLU(32))
-        ]))
+        ])).to('cuda:1')
 
         self.conv4_1 = nn.Conv2d(32, 2, 1, 1)
         self.conv4_2 = nn.Conv2d(32, 4, 1, 1)
@@ -64,7 +64,7 @@ class PNet(nn.Module):
             b: a float tensor with shape [batch_size, 4, h', w'].
             a: a float tensor with shape [batch_size, 2, h', w'].
         """
-        x = self.features(x)
+        x = self.features(x).to('cuda:1')
         a = self.conv4_1(x)
         b = self.conv4_2(x)
         a = F.softmax(a)
@@ -92,7 +92,7 @@ class RNet(nn.Module):
             ('flatten', Flatten()),
             ('conv4', nn.Linear(576, 128)),
             ('prelu4', nn.PReLU(128))
-        ]))
+        ])).to('cuda:1')
 
         self.conv5_1 = nn.Linear(128, 2)
         self.conv5_2 = nn.Linear(128, 4)
@@ -109,7 +109,7 @@ class RNet(nn.Module):
             b: a float tensor with shape [batch_size, 4].
             a: a float tensor with shape [batch_size, 2].
         """
-        x = self.features(x)
+        x = self.features(x).to('cuda:1')
         a = self.conv5_1(x)
         b = self.conv5_2(x)
         a = F.softmax(a)
@@ -142,7 +142,7 @@ class ONet(nn.Module):
             ('conv5', nn.Linear(1152, 256)),
             ('drop5', nn.Dropout(0.25)),
             ('prelu5', nn.PReLU(256)),
-        ]))
+        ])).to('cuda:1')
 
         self.conv6_1 = nn.Linear(256, 2)
         self.conv6_2 = nn.Linear(256, 4)
@@ -161,7 +161,7 @@ class ONet(nn.Module):
             b: a float tensor with shape [batch_size, 4].
             a: a float tensor with shape [batch_size, 2].
         """
-        x = self.features(x)
+        x = self.features(x).to('cuda:1')
         a = self.conv6_1(x)
         b = self.conv6_2(x)
         c = self.conv6_3(x)
