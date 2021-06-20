@@ -9,8 +9,8 @@ def Convolution2D(input,weight,bias,strike,padding,dilation,groups):
     n_weight=weight.data.cpu().numpy()
     n_bias=bias.data.cpu().numpy()
 
-    N, Kc, H, W = input.shape
-    C, Kc, Kh, Kw = weight.shape
+    N, Kc, H, W = n_input.shape
+    C, Kc, Kh, Kw = n_weight.shape
 
     np_padding = np.pad(n_input, pad_width=((0,),(0,),(padding,),(padding,)), mode='constant', constant_values=0)
 
@@ -18,3 +18,5 @@ def Convolution2D(input,weight,bias,strike,padding,dilation,groups):
     C, Kc, Kh, Kw = n_weight.shape
     W_out = int(np.floor((W + 2*padding - dilation*(Kw-1) - 1) / stride + 1))
     H_out = int(np.floor((H + 2*padding - dilation*(Kh-1) - 1) / stride + 1))
+
+    res = np.zeros((N, C, H_out, W_out), dtype=np.float32)
