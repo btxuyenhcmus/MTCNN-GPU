@@ -168,6 +168,7 @@ class ONet(nn.Module):
         a = F.softmax(a)
         return c, b, a
 
+
 class PNet_Type1(nn.Module):
 
     def __init__(self):
@@ -282,6 +283,123 @@ class ONet_Type1(nn.Module):
         c = self.conv6_3(x)
         a = F.softmax(a)
         return c, b, a
+
+
+class PNet_Type2(nn.Module):
+
+    def __init__(self):
+
+        super().__init__()
+
+        self.features = nn.Sequential(OrderedDict([
+            ('conv1', nn.Conv2d_Type2(3, 10, 3, 1)),
+            ('prelu1', nn.PReLU(10)),
+            ('pool1', nn.MaxPool2d(2, 2, ceil_mode=True)),
+
+            ('conv2', nn.Conv2d_Type2(10, 16, 3, 1)),
+            ('prelu2', nn.PReLU(16)),
+
+            ('conv3', nn.Conv2d_Type2(16, 32, 3, 1)),
+            ('prelu3', nn.PReLU(32))
+        ]))
+
+        self.conv4_1 = nn.Conv2d_Type2(32, 2, 1, 1)
+        self.conv4_2 = nn.Conv2d_Type2(32, 4, 1, 1)
+
+        weights = np.load('src/weights/pnet.npy', allow_pickle=True)[()]
+        for n, p in self.named_parameters():
+            p.data = torch.FloatTensor(weights[n])
+
+    def forward(self, x):
+        x = self.features(x)
+        a = self.conv4_1(x)
+        b = self.conv4_2(x)
+        a = F.softmax(a)
+        return b, a
+
+
+class RNet_Type2(nn.Module):
+
+    def __init__(self):
+
+        super().__init__()
+
+        self.features = nn.Sequential(OrderedDict([
+            ('conv1', nn.Conv2d_Type2(3, 28, 3, 1)),
+            ('prelu1', nn.PReLU(28)),
+            ('pool1', nn.MaxPool2d(3, 2, ceil_mode=True)),
+
+            ('conv2', nn.Conv2d_Type2(28, 48, 3, 1)),
+            ('prelu2', nn.PReLU(48)),
+            ('pool2', nn.MaxPool2d(3, 2, ceil_mode=True)),
+
+            ('conv3', nn.Conv2d_Type2(48, 64, 2, 1)),
+            ('prelu3', nn.PReLU(64)),
+
+            ('flatten', Flatten()),
+            ('conv4', nn.Linear(576, 128)),
+            ('prelu4', nn.PReLU(128))
+        ]))
+
+        self.conv5_1 = nn.Linear(128, 2)
+        self.conv5_2 = nn.Linear(128, 4)
+
+        weights = np.load('src/weights/rnet.npy', allow_pickle=True)[()]
+        for n, p in self.named_parameters():
+            p.data = torch.FloatTensor(weights[n])
+
+    def forward(self, x):
+        x = self.features(x)
+        a = self.conv5_1(x)
+        b = self.conv5_2(x)
+        a = F.softmax(a)
+        return b, a
+
+
+class ONet_Type2(nn.Module):
+
+    def __init__(self):
+
+        super().__init__()
+
+        self.features = nn.Sequential(OrderedDict([
+            ('conv1', nn.Conv2d_Type2(3, 32, 3, 1)),
+            ('prelu1', nn.PReLU(32)),
+            ('pool1', nn.MaxPool2d(3, 2, ceil_mode=True)),
+
+            ('conv2', nn.Conv2d_Type2(32, 64, 3, 1)),
+            ('prelu2', nn.PReLU(64)),
+            ('pool2', nn.MaxPool2d(3, 2, ceil_mode=True)),
+
+            ('conv3', nn.Conv2d_Type2(64, 64, 3, 1)),
+            ('prelu3', nn.PReLU(64)),
+            ('pool3', nn.MaxPool2d(2, 2, ceil_mode=True)),
+
+            ('conv4', nn.Conv2d_Type2(64, 128, 2, 1)),
+            ('prelu4', nn.PReLU(128)),
+
+            ('flatten', Flatten()),
+            ('conv5', nn.Linear(1152, 256)),
+            ('drop5', nn.Dropout(0.25)),
+            ('prelu5', nn.PReLU(256)),
+        ]))
+
+        self.conv6_1 = nn.Linear(256, 2)
+        self.conv6_2 = nn.Linear(256, 4)
+        self.conv6_3 = nn.Linear(256, 10)
+
+        weights = np.load('src/weights/onet.npy', allow_pickle=True)[()]
+        for n, p in self.named_parameters():
+            p.data = torch.FloatTensor(weights[n])
+
+    def forward(self, x):
+        x = self.features(x)
+        a = self.conv6_1(x)
+        b = self.conv6_2(x)
+        c = self.conv6_3(x)
+        a = F.softmax(a)
+        return c, b, a
+
 
 class PNet_Type3(nn.Module):
 
