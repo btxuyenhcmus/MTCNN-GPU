@@ -1,10 +1,10 @@
+from numba import cuda, jit, prange
+import math
 import numpy as np
 import torch
-from numba import jit, prange
 
 def conv_forward_type1(input, weight, bias, stride, padding, dilation, groups):
-    np_input = input.data.cpu().numpy()
-    np_input_pad = np.pad(input, pad_width=((0,), (0,), (padding[0],), (padding[1],)), mode='constant', constant_values=0)
+    np_input_pad = np.pad(input.data.cpu().numpy(), pad_width=((0,), (0,), (padding[0],), (padding[1],)), mode='constant', constant_values=0)
     np_weight = weight.data.cpu().numpy()
     np_bias = bias.data.cpu().numpy()
     
@@ -14,7 +14,23 @@ def conv_forward_type1(input, weight, bias, stride, padding, dilation, groups):
     W_out = int(np.floor((W + 2*padding[0] - dilation[0]*(Kw-1) - 1) / stride[0] + 1))
     H_out = int(np.floor((H + 2*padding[1] - dilation[1]*(Kh-1) - 1) / stride[1] + 1))
     result = np.zeros((N, C, H_out, W_out), dtype=np.float32)
-    _conv_forward_type1(np_input, np_input_pad,np_weight, np_bias, stride, padding, dilation, groups, result)
+    _conv_forward_type1(np_input_pad,np_weight, np_bias, stride, result)
+    return torch.from_numpy(result).type_as(input)
+
+def conv_forward_type3(input, weight, bias, stride, padding, dilation, groups):
+    np_input_pad = np.pad(input.data.cpu().numpy(), pad_width=((0,), (0,), (padding[0],), (padding[1],)), mode='constant', constant_values=0)
+    np_weight = weight.data.cpu().numpy()
+    np_bias = bias.data.cpu().numpy()
+    
+    # Dimensions.
+    N, Kc, H, W = input.shape
+    C, Kc, Kh, Kw = weight.shape
+    W_out = int(np.floor((W + 2*padding[0] - dilation[0]*(Kw-1) - 1) / stride[0] + 1))
+    H_out = int(np.floor((H + 2*padding[1] - dilation[1]*(Kh-1) - 1) / stride[1] + 1))
+    result = np.zeros((N, C, H_out, W_out), dtype=np.float32)
+    block_size = (32, 32)
+    grid_size = (math.ceil(W_out/block_size[0]), math.ceil(H_out/block_size[1]))
+    _conv_forward_type3[grid_size, block_size](np_input_pad,np_weight, np_bias, stride, result)
     return torch.from_numpy(result).type_as(input)
 
 def prelu_type1(input, weight):
@@ -25,11 +41,9 @@ def prelu_type1(input, weight):
 	return torch.from_numpy(result).type_as(input)
 
 @jit
-def _conv_forward_type1(input, input_pad, weight, bias, stride, padding, dilation, groups, result):
-    N, Kc, H, W = input.shape
+def _conv_forward_type1(input_pad, weight, bias, stride, result):
     C, Kc, Kh, Kw = weight.shape
-    W_out = int(np.floor((W + 2*padding[0] - dilation[0]*(Kw-1) - 1) / stride[0] + 1))
-    H_out = int(np.floor((H + 2*padding[1] - dilation[1]*(Kh-1) - 1) / stride[1] + 1))
+    N, C, H_out, W_out = result.shape
     for n in range(N):
       for to in range(C):
         for y in range(H_out):
@@ -37,8 +51,23 @@ def _conv_forward_type1(input, input_pad, weight, bias, stride, padding, dilatio
             for ti in range(Kc):
               for ky in range(Kh):
                 for kx in range(Kw):
-                  result[n,to,y,x] += weight[to,ti,ky,kx] * input_pad[n,ti,(y*stride[1])+ky,(x*stride[0])+kx]  
+                    result[n,to,y,x] += weight[to,ti,ky,kx] * input_pad[n,ti,(y*stride[1])+ky,(x*stride[0])+kx]
             result[n,to,y,x] += bias[to]
+
+@cuda.jit
+def _conv_forward_type3(input_pad, weight, bias, stride, result):
+    C, Kc, Kh, Kw = weight.shape
+    N, C, H_out, W_out = result.shape
+    row, col = cuda.grid(2)
+    if row > H_out or col > W_out:
+        return
+    for n in range(N):
+        for to in range(C):
+            for ti in range(Kc):
+                for ky in range(Kh):
+                    for kx in range(Kw):
+                        result[n,to,row,col] += weight[to,ti,ky,kx] * input_pad[n,ti,(row*stride[1])+ky,(col*stride[0])+kx]  
+            result[n,to,row,col] += bias[to]
 
 @jit
 def _prelu_type1(input, weight, result):

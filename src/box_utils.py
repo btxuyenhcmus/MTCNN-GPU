@@ -143,6 +143,8 @@ def get_image_boxes(bounding_boxes, img, size=24):
     img_boxes = np.zeros((num_boxes, 3, size, size), 'float32')
 
     for i in range(num_boxes):
+        if h[i] <= 0 or w[i] <= 0:
+            continue
         img_box = np.zeros((h[i], w[i], 3), 'uint8')
 
         img_array = np.asarray(img, 'uint8')
