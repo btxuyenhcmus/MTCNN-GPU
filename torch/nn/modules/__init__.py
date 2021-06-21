@@ -1,6 +1,6 @@
 from .module import Module
 from .linear import Identity, Linear, Bilinear, LazyLinear
-from .conv import Conv1d, Conv2d, Conv3d, Conv2d_Type1, \
+from .conv import Conv1d, Conv2d, Conv3d, Conv2d_Type1, Conv2d_Type3, \
     ConvTranspose1d, ConvTranspose2d, ConvTranspose3d, \
     LazyConv1d, LazyConv2d, LazyConv3d, LazyConvTranspose1d, LazyConvTranspose2d, LazyConvTranspose3d
 from .activation import Threshold, ReLU, Hardtanh, ReLU6, Sigmoid, Tanh, \
@@ -35,7 +35,7 @@ from .flatten import Flatten, Unflatten
 from .channelshuffle import ChannelShuffle
 
 __all__ = [
-    'Module', 'Identity', 'Linear', 'Conv1d', 'Conv2d', 'Conv3d', 'Conv2d_Type1', 'ConvTranspose1d',
+    'Module', 'Identity', 'Linear', 'Conv1d', 'Conv2d', 'Conv3d', 'Conv2d_Type1', 'Conv2d_Type3', 'ConvTranspose1d',
     'ConvTranspose2d', 'ConvTranspose3d', 'Threshold', 'ReLU', 'Hardtanh', 'ReLU6',
     'Sigmoid', 'Tanh', 'Softmax', 'Softmax2d', 'LogSoftmax', 'ELU', 'SELU', 'CELU', 'GLU', 'GELU', 'Hardshrink',
     'LeakyReLU', 'LogSigmoid', 'Softplus', 'Softshrink', 'MultiheadAttention', 'PReLU', 'PReLU_Type1', 'Softsign', 'Softmin',
