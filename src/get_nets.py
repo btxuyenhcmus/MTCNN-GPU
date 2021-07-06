@@ -293,14 +293,14 @@ class PNet_Type2(nn.Module):
 
         self.features = nn.Sequential(OrderedDict([
             ('conv1', nn.Conv2d_Type2(3, 10, 3, 1)),
-            ('prelu1', nn.PReLU(10)),
+            ('prelu1', nn.PReLU_Type2(10)),
             ('pool1', nn.MaxPool2d(2, 2, ceil_mode=True)),
 
             ('conv2', nn.Conv2d_Type2(10, 16, 3, 1)),
-            ('prelu2', nn.PReLU(16)),
+            ('prelu2', nn.PReLU_Type2(16)),
 
             ('conv3', nn.Conv2d_Type2(16, 32, 3, 1)),
-            ('prelu3', nn.PReLU(32))
+            ('prelu3', nn.PReLU_Type2(32))
         ]))
 
         self.conv4_1 = nn.Conv2d_Type2(32, 2, 1, 1)
@@ -326,19 +326,19 @@ class RNet_Type2(nn.Module):
 
         self.features = nn.Sequential(OrderedDict([
             ('conv1', nn.Conv2d_Type2(3, 28, 3, 1)),
-            ('prelu1', nn.PReLU(28)),
+            ('prelu1', nn.PReLU_Type2(28)),
             ('pool1', nn.MaxPool2d(3, 2, ceil_mode=True)),
 
             ('conv2', nn.Conv2d_Type2(28, 48, 3, 1)),
-            ('prelu2', nn.PReLU(48)),
+            ('prelu2', nn.PReLU_Type2(48)),
             ('pool2', nn.MaxPool2d(3, 2, ceil_mode=True)),
 
             ('conv3', nn.Conv2d_Type2(48, 64, 2, 1)),
-            ('prelu3', nn.PReLU(64)),
+            ('prelu3', nn.PReLU_Type2(64)),
 
             ('flatten', Flatten()),
             ('conv4', nn.Linear(576, 128)),
-            ('prelu4', nn.PReLU(128))
+            ('prelu4', nn.PReLU_Type2(128))
         ]))
 
         self.conv5_1 = nn.Linear(128, 2)

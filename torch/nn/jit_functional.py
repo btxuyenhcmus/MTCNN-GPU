@@ -116,7 +116,7 @@ def _prelu_type1(input, weight, result):
 def prelu_type2(input, weight):
   np_input=input.data.cpu().numpy()
   np_weight=weight.data.cpu().numpy()
-  N,Kc,H,W=np_input.shape
+  H , W = np_input.shape[-1], np_input.shape[-2]
  
   result=np.zeros(np_input.shape,dtype=np.float32)
   block_size=(32,32)
