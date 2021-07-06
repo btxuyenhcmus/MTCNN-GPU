@@ -110,3 +110,32 @@ def _prelu_type1(input, weight, result):
 						result[n, to, y, x] = input[n, to, y, x]
 					else:
 						result[n, to, y, x] = input[n, to, y, x] * weight[to]
+
+
+
+def prelu_type2(input, weight):
+  np_input=input.data.cpu().numpy()
+  np_weight=weight.data.cpu().numpy()
+  N,Kc,H,W=np_input.shape
+ 
+  result=np.zeros(np_input.shape,dtype=np.float32)
+  block_size=(32,32)
+  grid_size = (math.ceil(int(W)/block_size[0]), math.ceil(int(H)/block_size[1]))
+  _prelu_type2[grid_size,block_size](np_input,np_weight,result)
+  return torch.from_numpy(result).type_as(input)
+
+
+@cuda.jit
+def _prelu_type2(input, weight, result):
+  if(len(input.shape)==2):
+    result=input
+  N,Kc,H,W=input.shape
+  row,col=cuda.grid(2)
+  if(row>H or col>W):
+    return
+  for n in range(N):
+    for to in range(Kc):
+      if(input[n,to,row,col]>=0):
+        result[n,to,row,col]=input[n,to,row,col]
+      else:
+        result[n,to,row,col]=input[n,to,row,col]*weight[to]

@@ -5,7 +5,7 @@ from .conv import Conv1d, Conv2d, Conv3d, Conv2d_Type1, Conv2d_Type3, Conv2d_Typ
     LazyConv1d, LazyConv2d, LazyConv3d, LazyConvTranspose1d, LazyConvTranspose2d, LazyConvTranspose3d
 from .activation import Threshold, ReLU, Hardtanh, ReLU6, Sigmoid, Tanh, \
     Softmax, Softmax2d, LogSoftmax, ELU, SELU, CELU, GELU, Hardshrink, LeakyReLU, LogSigmoid, \
-    Softplus, Softshrink, MultiheadAttention, PReLU, PReLU_Type1, Softsign, Softmin, Tanhshrink, RReLU, GLU, \
+    Softplus, Softshrink, MultiheadAttention, PReLU, PReLU_Type1,PReLU_Type2, Softsign, Softmin, Tanhshrink, RReLU, GLU, \
     Hardsigmoid, Hardswish, SiLU
 from .loss import L1Loss, NLLLoss, KLDivLoss, MSELoss, BCELoss, BCEWithLogitsLoss, NLLLoss2d, \
     CosineEmbeddingLoss, CTCLoss, HingeEmbeddingLoss, MarginRankingLoss, \
@@ -38,7 +38,7 @@ __all__ = [
     'Module', 'Identity', 'Linear', 'Conv1d', 'Conv2d', 'Conv3d', 'Conv2d_Type1', 'Conv2d_Type2', 'Conv2d_Type3', 'ConvTranspose1d',
     'ConvTranspose2d', 'ConvTranspose3d', 'Threshold', 'ReLU', 'Hardtanh', 'ReLU6',
     'Sigmoid', 'Tanh', 'Softmax', 'Softmax2d', 'LogSoftmax', 'ELU', 'SELU', 'CELU', 'GLU', 'GELU', 'Hardshrink',
-    'LeakyReLU', 'LogSigmoid', 'Softplus', 'Softshrink', 'MultiheadAttention', 'PReLU', 'PReLU_Type1', 'Softsign', 'Softmin',
+    'LeakyReLU', 'LogSigmoid', 'Softplus', 'Softshrink', 'MultiheadAttention', 'PReLU', 'PReLU_Type1', 'PReLU_Type2','Softsign', 'Softmin',
     'Tanhshrink', 'RReLU', 'L1Loss', 'NLLLoss', 'KLDivLoss', 'MSELoss', 'BCELoss', 'BCEWithLogitsLoss',
     'NLLLoss2d', 'PoissonNLLLoss', 'CosineEmbeddingLoss', 'CTCLoss', 'HingeEmbeddingLoss', 'MarginRankingLoss',
     'MultiLabelMarginLoss', 'MultiLabelSoftMarginLoss', 'MultiMarginLoss', 'SmoothL1Loss', 'GaussianNLLLoss',
