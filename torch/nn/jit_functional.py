@@ -86,7 +86,8 @@ def _conv_forward_type2(input_pad, weight, bias, stride, result):
 def _conv_forward_type3(input_pad, weight, bias, stride, result):
     C, Kc, Kh, Kw = weight.shape
     N, C, H_out, W_out = result.shape
-    row, col = cuda.grid(2)
+    col = cuda.blockIdx.y * cuda.blockDim.y + cuda.threadIdx.y
+    row = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.x
     if row > H_out or col > W_out:
         return
     for n in range(N):
