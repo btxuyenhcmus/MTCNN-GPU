@@ -3,6 +3,7 @@ import math
 import numpy as np
 import torch
 
+
 def conv_forward_type1(input, weight, bias, stride, padding, dilation, groups):
     np_input_pad = np.pad(input.data.cpu().numpy(), pad_width=((0,), (0,), (padding[0],), (padding[1],)), mode='constant', constant_values=0)
     np_weight = weight.data.cpu().numpy()
@@ -48,11 +49,27 @@ def conv_forward_type3(input, weight, bias, stride, padding, dilation, groups):
     return torch.from_numpy(result).type_as(input)
 
 def prelu_type1(input, weight):
-	np_input = input.data.cpu().numpy()
-	np_weight = weight.data.cpu().numpy()
-	result = np.zeros(np_input.shape, dtype=np.float32)
-	_prelu_type1(np_input, np_weight, result)
-	return torch.from_numpy(result).type_as(input)
+    np_input = input.data.cpu().numpy()
+    np_weight = weight.data.cpu().numpy()
+    result = np.zeros(np_input.shape, dtype=np.float32)
+    if len(np_input.shape) == 4:
+      _prelu_type1_4(np_input, np_weight, result)
+    else:
+      _prelu_type1_2(np_input, np_weight, result)
+    return torch.from_numpy(result).type_as(input)
+
+
+def prelu_type3(input, weight):
+    np_input = input.data.cpu().numpy()
+    np_weight = weight.data.cpu().numpy()
+    result = np.zeros(np_input.shape, dtype=np.float32)
+    block_size = (32, 32)
+    grid_size = (math.ceil(np_input.shape[1]/block_size[0]), math.ceil(np_input.shape[0]/block_size[1]))
+    if len(np_input.shape) == 4:
+      _prelu_type3_4[grid_size, block_size](np_input, np_weight, result)
+    else:
+      _prelu_type3_2[grid_size, block_size](np_input, np_weight, result)
+    return torch.from_numpy(result).type_as(input)
 
 @jit
 def _conv_forward_type1(input_pad, weight, bias, stride, result):
@@ -98,16 +115,53 @@ def _conv_forward_type3(input_pad, weight, bias, stride, result):
                         result[n,to,row,col] += weight[to,ti,ky,kx] * input_pad[n,ti,(row*stride[1])+ky,(col*stride[0])+kx]  
             result[n,to,row,col] += bias[to]
 
+
 @jit
-def _prelu_type1(input, weight, result):
-	if len(input.shape) == 2:
-		result = input
-	N, Kc, H, W = input.shape
-	for n in range(N):
-		for to in range(Kc):
-			for y in range(H):
-				for x in range(W):
-					if input[n, to, y, x] >= 0:
-						result[n, to, y, x] = input[n, to, y, x]
-					else:
-						result[n, to, y, x] = input[n, to, y, x] * weight[to]
+def _prelu_type1_4(input, weight, result):
+    N, Kc, H, W = input.shape
+    for n in range(N):
+      for to in range(Kc):
+        for y in range(H):
+          for x in range(W):
+            if input[n, to, y, x] >= 0:
+              result[n, to, y, x] = input[n, to, y, x]
+            else:
+              result[n, to, y, x] = input[n, to, y, x] * weight[to]
+
+@jit
+def _prelu_type1_2(input, weight, result):
+    H, W = input.shape
+    for y in range(H):
+      for x in range(W):
+        if input[y, x] >= 0:
+          result[y, x] = input[y, x]
+        else:
+          result[y, x] = input[y, x] * weight[x]
+
+
+@cuda.jit
+def _prelu_type3_4(input, weight, result):
+    N, Kc, H, W = input.shape
+    row = cuda.blockIdx.y * cuda.blockDim.y + cuda.threadIdx.x
+    col = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.y
+    if row > H or col > W:
+      return
+    for n in range(N):
+      for to in range(Kc):
+        if input[n, to, row, col] >= 0:
+          result[n, to, row, col] = input[n, to, row, col]
+        else:
+          result[n, to, row, col] = input[n, to, row, col] * weight[to]
+
+
+@cuda.jit
+def _prelu_type3_2(input, weight, result):
+    H, W = input.shape
+    row = cuda.blockIdx.y * cuda.blockDim.y + cuda.threadIdx.x
+    col = cuda.blockIdx.x * cuda.blockDim.x + cuda.threadIdx.y
+    if row > H or col > W:
+      return
+    if input[row, col] >= 0:
+      result[row, col] = input[row, col]
+    else:
+      result[row, col] = input[row, col] * weight[col]

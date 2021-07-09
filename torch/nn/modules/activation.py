@@ -1051,6 +1051,7 @@ class PReLU(Module):
     def extra_repr(self) -> str:
         return 'num_parameters={}'.format(self.num_parameters)
 
+
 class PReLU_Type1(Module):
     __constants__ = ['num_parameters']
     num_parameters: int
@@ -1062,6 +1063,22 @@ class PReLU_Type1(Module):
 
     def forward(self, input: Tensor) -> Tensor:
         return jF.prelu_type1(input, self.weight)
+
+    def extra_repr(self) -> str:
+        return 'num_parameters={}'.format(self.num_parameters)
+
+
+class PReLU_Type3(Module):
+    __constants__ = ['num_parameters']
+    num_parameters: int
+
+    def __init__(self, num_parameters: int = 1, init: float = 0.25) -> None:
+        self.num_parameters = num_parameters
+        super(PReLU_Type3, self).__init__()
+        self.weight = Parameter(torch.Tensor(num_parameters).fill_(init))
+
+    def forward(self, input: Tensor) -> Tensor:
+        return jF.prelu_type3(input, self.weight)
 
     def extra_repr(self) -> str:
         return 'num_parameters={}'.format(self.num_parameters)

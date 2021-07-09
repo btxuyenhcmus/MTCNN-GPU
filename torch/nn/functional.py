@@ -16,6 +16,7 @@ from . import _reduction as _Reduction
 from . import grad  # noqa: F401
 from .modules import utils
 from .modules.utils import _single, _pair, _triple, _list_with_default
+from . import jit_functional as jt
 
 
 Tensor = torch.Tensor
